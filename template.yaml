@@ -2,23 +2,34 @@ AWSTemplateFormatVersion: 2010-09-09
 Description: Checkpoint CloudFormation
 
 Parameters:
-
   Name:
+    Type: String
     Default: noora
-
-
-
-
+  InstanceTypeParameter:
+    Type: String
+    Default: t2.nano
+    Description: t2.nano Instance
 Resources:
-
-  SecurityGroup:
+  InstanceSecurityGroup:
     Type: AWS::EC2::SecurityGroup
+    Properties:
+      GroupDescription: securitygroup for EC2 Instance
+      SecurityGroupIngress:
+        - IpProtocol: tcp
+          FromPort: '22'
+          ToPort: '22'
+          CidrIp: 0.0.0.0/0
+  Ec2Instance:
+    Type: AWS::EC2::Instance
+    Properties:
+      InstanceType: !Ref InstanceTypeParameter
+      ImageId: ami-07eda9385feb1e969
+      Tags:
+        - Key: 'Owner'
+          Value: !Ref Name
+      SecurityGroups:
+        - Ref: InstanceSecurityGroup
 
-  Properties:
-    GroupDescription: nooran-securitygroup
-    VpcId: vpc-32cc224b
-    SecurityGroupIngress:
-      - IpProtocol: tcp
-        FromPort: '22'
-        ToPort: '22'
-        CidrIp: 0.0.0.0/0
+Outputs:
+  Ec2InstanceDNSName:
+    Value: !GetAtt Ec2Instance.PublicDnsName
